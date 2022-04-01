@@ -1,0 +1,91 @@
+---
+title: "Dan's Dashboarding Class. But this one's mine."
+output: 
+  flexdashboard::flex_dashboard:
+    #orientation: columns #or row. Overall orientation.
+    orientation: row
+    vertical_layout: fill #or scroll, and specify size
+    social: ["menu"]  #lets us share on SM. These add buttons.
+    source_code: embed
+    #theme:
+     # version: 4
+      #bootswatch: sandstone
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(tidyverse)
+library(palmerpenguins) #this is the data
+library(plotly)
+library(DT)
+library(fontawesome) #for some icons
+data("penguins")
+#type in penguins to change "promise" in environment. Don't execute, just delete.
+```
+
+Plots {data-navmenu="Pages"} <!--this nests the page tabs -->
+===========================================
+
+
+Sidebar {.sidebar}
+--------------------------------------------------
+
+### Penguin Stats
+The number of penguins in the data is `r nrow(penguins)`
+<!-- adds to all plots -->
+
+
+Row
+----------------------------------------
+
+### Number of Penguins
+```{r}
+valueBox(nrow(penguins), icon = "fa-linux") #fontawesome icon. linux's is a penguin
+```
+
+
+
+Column {.tabset} <!--or use--- Column {data-width=650}  ------>
+-----------------------------------------------------------------------
+
+
+### Scatter plot of bill length vs bill depth by species
+
+```{r}
+#the ====== adds a new page.  The ----- adds a new pane.
+a = penguins %>% ggplot(aes(x= bill_length_mm, y= bill_depth_mm, color = species))+
+  geom_point()
+ggplotly(a)#makes an interactive plot
+#htmlwidgets.org has more packages that do cools stuff for dashboards. leaflet is good for maps...
+```
+
+
+-----------------------------------------------------------------------
+
+### Body mass by sex
+
+```{r}
+penguins %>% ggplot(aes(x= body_mass_g, y= sex, fill = sex))+
+  geom_boxplot()
+```
+
+### Flipper length by species
+
+```{r}
+penguins %>% ggplot(aes(x= flipper_length_mm, fill = species))+
+  geom_histogram()+facet_wrap(~species)
+```
+
+Data {data-navmenu="Pages"} <!--this nests the page tabs. Have to do for each page -->
+==========================================
+
+```{r}
+#ctrl-alt-i adds chunk
+penguins %>% datatable(extensions = "Buttons",
+  options = list(dom = "Blfrtip",
+            buttons = c("copy", "csv", "excel", "pdf", "print") ))
+#from DT package. This is what we include in the table
+#We're adding the B for buttons, the rest is default
+#datatable.net provides options you can include. Nice to allow others to download your data
+```
+
